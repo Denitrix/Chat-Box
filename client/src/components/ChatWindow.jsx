@@ -50,7 +50,7 @@ const ChatWindow = ({ activeChat, onClickCallback, chatContainerStyle }) => {
   const { data: subData, loading: subLoading } = useSubscription(
     MESSAGES_SUBSCRIPTION,
     {
-      variables: { user: { _id: currentUser._id } },
+      variables: { chatId: thisChat._id },
       onComplete: (d) => {
         console.log("subData", d);
       },
@@ -104,6 +104,7 @@ const ChatWindow = ({ activeChat, onClickCallback, chatContainerStyle }) => {
     setThisChat(activeChat);
     singleChat();
     getMessages();
+    refetch();
   }, [activeChat]);
   useEffect(() => {
     function handleResize() {
@@ -159,15 +160,15 @@ const ChatWindow = ({ activeChat, onClickCallback, chatContainerStyle }) => {
     });
   }, []); */
   useEffect(() => {
-    // getMessages();
-    if (!subLoading) {
+    getMessages();
+    /* if (!subLoading) {
       const newMessage = subData.messageAdded;
       if (newMessage.chat._id === thisChat._id) {
         setAllMessages([...allMessages, newMessage]);
         console.log("New Message added", subData);
       }
       console.log("New Message not added", subData);
-    }
+    } */
     refetch();
   }, [subData, subLoading]);
 

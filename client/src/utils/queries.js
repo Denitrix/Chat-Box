@@ -93,8 +93,8 @@ export const QUERY_MESSAGES = gql`
 `;
 
 export const MESSAGES_SUBSCRIPTION = gql`
-  subscription onMessageAdded($user: UserInput!) {
-    messageAdded(user: $user) {
+  subscription onMessageAdded($chatId: ID!) {
+    messageAdded(chatId: $chatId) {
       _id
       content
       chat {
@@ -106,6 +106,32 @@ export const MESSAGES_SUBSCRIPTION = gql`
         avatar
       }
       createdAt
+    }
+  }
+`;
+export const CHAT_SUBSCRIPTION = gql`
+  subscription chatEdited($userId: ID!) {
+    chatEdited(userId: $userId) {
+      _id
+      chatName
+      users {
+        _id
+        username
+        avatar
+      }
+      lastMessage {
+        _id
+        content
+        sender {
+          _id
+          username
+          avatar
+        }
+        createdAt
+      }
+      groupAdmin {
+        _id
+      }
     }
   }
 `;

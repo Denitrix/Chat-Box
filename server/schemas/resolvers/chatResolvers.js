@@ -1,6 +1,8 @@
 const { Chat, User, Message } = require("../../models/index");
 const { AuthenticationError } = require("../../utils/auth");
+const { PubSub, withFilter } = require("graphql-subscriptions");
 
+const pubsub = new PubSub();
 const chatResolvers = {
   Query: {
     allChats: async (parent, { chatName }, context) => {
@@ -127,6 +129,8 @@ const chatResolvers = {
             path: "groupAdmin",
             select: ["username", "email", "avatar"],
           });
+        //push to subscription
+        pubsub.publish("EDIT_CHAT", { chatEdited: updatedChat });
         if (updatedChat.users.length <= 1) {
           const deletedChat = await Chat.findByIdAndDelete(chatId);
           console.log("Deleted", deletedChat.chatName);
@@ -141,6 +145,17 @@ const chatResolvers = {
       }
 
       throw AuthenticationError;
+    },
+  },
+  Subscription: {
+    chatEdited: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(["EDIT_CHAT"]),
+        (payload, variables) => {
+          console.log("payload verification");
+          return payload.user._id === variables.userId;
+        }
+      ),
     },
   },
 };

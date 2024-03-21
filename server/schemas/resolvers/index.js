@@ -15,6 +15,7 @@ const resolvers = {
   },
   Subscription: {
     ...messageResolvers.Subscription,
+    ...chatResolvers.Subscription,
   },
 };
 

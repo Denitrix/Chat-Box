@@ -1,5 +1,5 @@
 const { Message, Chat, User } = require("../../models/index");
-const { PubSub } = require("graphql-subscriptions");
+const { PubSub, withFilter } = require("graphql-subscriptions");
 
 const pubsub = new PubSub();
 const messageResolvers = {
@@ -33,16 +33,26 @@ const messageResolvers = {
       };
 
       const message = await Message.create(newMessage);
-      await Chat.findByIdAndUpdate(chatId, {
+      const newChat = await Chat.findByIdAndUpdate(chatId, {
         lastMessage: message,
       });
+      pubsub.publish("EDIT_CHAT", { chatEdited: newChat });
       pubsub.publish("ADD_MESSAGE", { messageAdded: message });
       return message;
     },
   },
   Subscription: {
     messageAdded: {
-      subscribe: () => pubsub.asyncIterator(["ADD_MESSAGE"]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(["ADD_MESSAGE"]),
+        (payload, variables) => {
+          console.log(
+            "payload verification",
+            payload.messageAdded.chat.chatName
+          );
+          return payload.messageAdded.chat._id == variables.chatId;
+        }
+      ),
     },
   },
   /* Subscription: {

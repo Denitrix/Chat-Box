@@ -23,11 +23,7 @@ import {
   useLazyQuery,
   useSubscription,
 } from "@apollo/client";
-import {
-  QUERY_CHATS,
-  QUERY_USERS,
-  MESSAGES_SUBSCRIPTION,
-} from "../utils/queries";
+import { QUERY_CHATS, QUERY_USERS, CHAT_SUBSCRIPTION } from "../utils/queries";
 import { ADD_CHAT } from "../utils/mutations";
 import Auth from "../utils/auth";
 
@@ -77,9 +73,9 @@ const ChatList = ({
       .join(", ");
   };
   const { data: subData, loading: subLoading } = useSubscription(
-    MESSAGES_SUBSCRIPTION,
+    CHAT_SUBSCRIPTION,
     {
-      variables: { user: { _id: currentUser._id } },
+      variables: { userId: currentUser._id },
       onComplete: (d) => {
         console.log("subData", d);
       },
